@@ -16,8 +16,8 @@ namespace DataFiller.Services
         {
             try
             {
-                var _db = CreateDbConnection();
-                var result = await _db.Ado.GetScalarAsync("SELECT 1");
+                using var db = CreateDbConnection();
+                var result = await db.Ado.GetScalarAsync("SELECT 1");
                 return result != null;
             }
             catch
@@ -26,16 +26,16 @@ namespace DataFiller.Services
             }
         }
 
-        public async Task<bool> TableExistsAsync(string tableName)
+        public Task<bool> TableExistsAsync(string tableName)
         {
-            var _db = CreateDbConnection();
-            var tables = _db.DbMaintenance.GetTableInfoList();
-            return tables.Any(t => t.Name.Equals(tableName, StringComparison.OrdinalIgnoreCase));
+            using var db = CreateDbConnection();
+            var tables = db.DbMaintenance.GetTableInfoList();
+            return Task.FromResult(tables.Any(t => t.Name.Equals(tableName, StringComparison.OrdinalIgnoreCase)));
         }
         public async Task<List<Dictionary<string, object>>> GetTableDataAsync(string tableName, int limit = 1000)
         {
-            var _db = CreateDbConnection();
-            var data = await _db.Queryable<dynamic>().AS($"\"{tableName}\"").Take(limit).ToListAsync();
+            using var db = CreateDbConnection();
+            var data = await db.Queryable<dynamic>().AS($"\"{tableName}\"").Take(limit).ToListAsync();
             return data.Select(d => ((System.Dynamic.ExpandoObject)d).ToDictionary(
                 kvp => kvp.Key,
                 kvp => kvp.Value ?? DBNull.Value

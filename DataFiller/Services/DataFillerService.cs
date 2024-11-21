@@ -13,6 +13,8 @@ namespace DataFiller.Services
         private HashSet<string> _primaryKeys;
         private readonly ConcurrentDictionary<string, (int Current, int Target, double Progress)> _tableProgress;
         private Table _progressTable;
+        private readonly Stopwatch _stopwatch;
+        private DateTime _lastDisplayUpdate = DateTime.MinValue;
 
         public DataFillerService(DbService dbService, Configuration config)
         {
@@ -22,6 +24,7 @@ namespace DataFiller.Services
             _primaryKeys = new HashSet<string>();
             _tableProgress = new ConcurrentDictionary<string, (int, int, double)>();
             InitializeProgressTable();
+            _stopwatch = new Stopwatch();
         }
 
         private void InitializeProgressTable()
@@ -119,8 +122,7 @@ namespace DataFiller.Services
         {
             using var semaphore = new SemaphoreSlim(_config.ThreadCount);
             var tasks = new List<Task>();
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
+            _stopwatch.Start();
 
             var totalTables = _config.TableMappings.Count;
             var processedTables = 0;
@@ -179,20 +181,25 @@ namespace DataFiller.Services
                                         Interlocked.Add(ref processedRecords, batchSize);
                                         
                                         // Calculate time estimates
-                                        var elapsed = stopwatch.Elapsed;
+                                        var elapsed = _stopwatch.Elapsed;
                                         var recordsRemaining = totalRecords - processedRecords;
                                         var recordsPerSecond = processedRecords / Math.Max(1, elapsed.TotalSeconds);
                                         var estimatedSecondsRemaining = recordsRemaining / Math.Max(1, recordsPerSecond);
                                         var estimatedTimeRemaining = TimeSpan.FromSeconds(estimatedSecondsRemaining);
 
-                                        // Update display
-                                        UpdateProgressDisplay(
-                                            processedTables,
-                                            totalTables,
-                                            processedRecords,
-                                            totalRecords,
-                                            elapsed,
-                                            estimatedTimeRemaining);
+                                        // Only update display if more than 1 second has passed since last update
+                                        var now = DateTime.Now;
+                                        if ((now - _lastDisplayUpdate).TotalSeconds >= 1)
+                                        {
+                                            UpdateProgressDisplay(
+                                                processedTables,
+                                                totalTables,
+                                                processedRecords,
+                                                totalRecords,
+                                                elapsed,
+                                                estimatedTimeRemaining);
+                                            _lastDisplayUpdate = now;
+                                        }
                                     }
                                     catch (Exception ex)
                                     {
@@ -217,8 +224,8 @@ namespace DataFiller.Services
                     await Task.WhenAll(tasks);
                 });
 
-            stopwatch.Stop();
-            var finalElapsed = stopwatch.Elapsed;
+            _stopwatch.Stop();
+            var finalElapsed = _stopwatch.Elapsed;
             AnsiConsole.MarkupLine($"[green]Data fill completed in {finalElapsed.Hours:D2}:{finalElapsed.Minutes:D2}:{finalElapsed.Seconds:D2}[/]");
         }
 
