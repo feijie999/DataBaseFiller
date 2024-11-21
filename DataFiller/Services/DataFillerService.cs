@@ -8,12 +8,14 @@ namespace DataFiller.Services
         private readonly DbService _dbService;
         private readonly Configuration _config;
         private readonly Random _random;
+        private HashSet<string> _primaryKeys;
 
         public DataFillerService(DbService dbService, Configuration config)
         {
             _dbService = dbService;
             _config = config;
             _random = new Random();
+            _primaryKeys = new HashSet<string>();
         }
 
         public async Task FillDataAsync()
@@ -48,7 +50,7 @@ namespace DataFiller.Services
                         while (remainingCount > 0)
                         {
                             var batchSize = Math.Min(remainingCount, _config.BatchSize);
-                            var batchData = GenerateBatchData(sourceData, batchSize);
+                            var batchData = await GenerateBatchData(tableName, sourceData, batchSize);
 
                             try
                             {
@@ -66,18 +68,26 @@ namespace DataFiller.Services
             }
         }
 
-        private List<Dictionary<string, object>> GenerateBatchData(List<Dictionary<string, object>> sourceData, int batchSize)
+        public async Task<List<Dictionary<string, object>>> GenerateBatchData(string tableName, List<Dictionary<string, object>> sourceData, int batchSize)
         {
+            // 获取表的主键信息
+            var tableInfo = _dbService._db.DbMaintenance.GetTableInfoList().FirstOrDefault(t => t.Name.Equals(tableName, StringComparison.OrdinalIgnoreCase));
+            if (tableInfo != null)
+            {
+                var primaryKeyColumns = _dbService._db.DbMaintenance.GetPrimaries(tableInfo.Name);
+                _primaryKeys = new HashSet<string>(primaryKeyColumns.Select(pk => pk), StringComparer.OrdinalIgnoreCase);
+            }
+
             var result = new List<Dictionary<string, object>>();
             for (int i = 0; i < batchSize; i++)
             {
                 var randomIndex = _random.Next(sourceData.Count);
                 var newRow = new Dictionary<string, object>(sourceData[randomIndex]);
                 
-                // 处理主键和唯一索引
+                // 处理主键
                 foreach (var key in newRow.Keys.ToList())
                 {
-                    if (key.ToLower().Contains("id") || key.ToLower() == "key")
+                    if (_primaryKeys.Contains(key))
                     {
                         if (newRow[key] is int intValue)
                         {
@@ -90,11 +100,14 @@ namespace DataFiller.Services
                         else if (newRow[key] is string)
                         {
                             newRow[key] = Guid.NewGuid().ToString();
+                        }else if (newRow[key] is Guid)
+                        {
+                            newRow[key] = Guid.NewGuid();
                         }
                     }
                 }
 
-                result.Add(newRow);
+                result.Add(newRow.ToDictionary(kvp => $"\"{kvp.Key}\"", kvp => kvp.Value));
             }
 
             // 随机排序

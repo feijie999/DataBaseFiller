@@ -5,7 +5,7 @@ namespace DataFiller.Services
 {
     public class DbService
     {
-        private readonly ISqlSugarClient _db;
+        public readonly ISqlSugarClient _db;
 
         public DbService(Configuration config)
         {
@@ -32,13 +32,13 @@ namespace DataFiller.Services
 
         public async Task<bool> TableExistsAsync(string tableName)
         {
-            var tables = await _db.DbMaintenance.GetTableInfoListAsync();
+            var tables = _db.DbMaintenance.GetTableInfoList();
             return tables.Any(t => t.Name.Equals(tableName, StringComparison.OrdinalIgnoreCase));
         }
 
         public async Task<List<Dictionary<string, object>>> GetTableDataAsync(string tableName, int limit = 1000)
         {
-            var data = await _db.Queryable<dynamic>().AS(tableName).Take(limit).ToListAsync();
+            var data = await _db.Queryable<dynamic>().AS($"\"{tableName}\"").Take(limit).ToListAsync();
             return data.Select(d => ((System.Dynamic.ExpandoObject)d).ToDictionary(
                 kvp => kvp.Key,
                 kvp => kvp.Value ?? DBNull.Value
@@ -47,7 +47,7 @@ namespace DataFiller.Services
 
         public async Task<int> BulkInsertAsync<T>(string tableName, List<T> data) where T : class, new()
         {
-            return await _db.Insertable(data).AS(tableName).ExecuteCommandAsync();
+            return await _db.Insertable(data).AS($"\"{tableName}\"").ExecuteCommandAsync();
         }
     }
 }

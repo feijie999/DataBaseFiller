@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Npgsql" Version="7.0.6" />
     <PackageReference Include="Spectre.Console" Version="0.49.1" />
     <PackageReference Include="SqlSugar" Version="5.1.4.170" />
