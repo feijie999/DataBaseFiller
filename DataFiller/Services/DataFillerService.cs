@@ -12,7 +12,6 @@ namespace DataFiller.Services
         private readonly Random _random;
         private HashSet<string> _primaryKeys;
         private readonly ConcurrentDictionary<string, (int Current, int Target, double Progress)> _tableProgress;
-        private readonly Status _status;
         private Table _progressTable;
 
         public DataFillerService(DbService dbService, Configuration config)
@@ -22,8 +21,6 @@ namespace DataFiller.Services
             _random = new Random();
             _primaryKeys = new HashSet<string>();
             _tableProgress = new ConcurrentDictionary<string, (int, int, double)>();
-            _status = new Status(AnsiConsole.Console);
-            _status.AutoRefresh = true;
             InitializeProgressTable();
         }
 
@@ -167,7 +164,7 @@ namespace DataFiller.Services
                                 while (remainingCount > 0)
                                 {
                                     var batchSize = Math.Min(remainingCount, _config.BatchSize);
-                                    var batchData = await GenerateBatchData(tableName, sourceData, batchSize);
+                                    var batchData = GenerateBatchData(tableName, sourceData, batchSize);
 
                                     try
                                     {
@@ -225,7 +222,7 @@ namespace DataFiller.Services
             AnsiConsole.MarkupLine($"[green]Data fill completed in {finalElapsed.Hours:D2}:{finalElapsed.Minutes:D2}:{finalElapsed.Seconds:D2}[/]");
         }
 
-        public async Task<List<Dictionary<string, object>>> GenerateBatchData(string tableName, List<Dictionary<string, object>> sourceData, int batchSize)
+        public List<Dictionary<string, object>> GenerateBatchData(string tableName, List<Dictionary<string, object>> sourceData, int batchSize)
         {
             // 获取表的主键信息
             var tableInfo = _dbService._db.DbMaintenance.GetTableInfoList().FirstOrDefault(t => t.Name.Equals(tableName, StringComparison.OrdinalIgnoreCase));

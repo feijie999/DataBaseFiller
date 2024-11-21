@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DataFiller")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dc50ee792763afb104546e0d96fdcee1cd424e8d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cb99e63e116667de9a8f59dab6edcd9de491bf25")]
 [assembly: System.Reflection.AssemblyProductAttribute("DataFiller")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DataFiller")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
