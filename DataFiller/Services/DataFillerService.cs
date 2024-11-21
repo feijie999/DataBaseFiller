@@ -31,10 +31,11 @@ namespace DataFiller.Services
         {
             _progressTable = new Table()
                 .Border(TableBorder.Rounded)
-                .Expand();
+                .Expand()
+                .Title("[blue]Data Fill Progress[/]");
 
-            _progressTable.AddColumn("Status");
-            _progressTable.AddColumn("Value");
+            _progressTable.AddColumn(new TableColumn("Category").Centered());
+            _progressTable.AddColumn(new TableColumn("Details").Centered());
         }
 
         private void UpdateProgressDisplay(
@@ -47,26 +48,45 @@ namespace DataFiller.Services
         {
             _progressTable.Rows.Clear();
             
-            // Add overall progress
+            var tableProgress = processedTables * 100.0 / totalTables;
+            var recordProgress = processedRecords * 100.0 / totalRecords;
+            
+            // Add overall progress with color coding
             _progressTable.AddRow(
-                new Text("Tables Progress"),
-                new Text($"{processedTables}/{totalTables} ({(processedTables * 100.0 / totalTables):F1}%)"));
+                new Markup("[bold]Tables Progress[/]"),
+                new BarChart()
+                    .Width(40)
+                    .AddItem("Progress", tableProgress, Color.Blue));
+            
             _progressTable.AddRow(
-                new Text("Records Progress"),
-                new Text($"{processedRecords:N0}/{totalRecords:N0} ({(processedRecords * 100.0 / totalRecords):F1}%)"));
+                new Text("Tables Count"),
+                new Markup($"[green]{processedTables}[/]/[blue]{totalTables}[/] ([yellow]{tableProgress:F1}%[/])"));
+            
             _progressTable.AddRow(
-                new Text("Time Elapsed"),
-                new Text($"{elapsed.Hours:D2}:{elapsed.Minutes:D2}:{elapsed.Seconds:D2}"));
+                new Markup("[bold]Records Progress[/]"),
+                new BarChart()
+                    .Width(40)
+                    .AddItem("Progress", recordProgress, Color.Green));
+            
             _progressTable.AddRow(
-                new Text("Estimated Remaining"),
-                new Text($"{estimatedRemaining.Hours:D2}:{estimatedRemaining.Minutes:D2}:{estimatedRemaining.Seconds:D2}"));
+                new Text("Records Count"),
+                new Markup($"[green]{processedRecords:N0}[/]/[blue]{totalRecords:N0}[/] ([yellow]{recordProgress:F1}%[/])"));
 
-            // Add active tables progress
+            // Time information
+            _progressTable.AddRow(
+                new Markup("[bold]Time Information[/]"),
+                new Panel(new Rows(
+                    new Markup($"[blue]Elapsed:[/] {elapsed.Hours:D2}:{elapsed.Minutes:D2}:{elapsed.Seconds:D2}"),
+                    new Markup($"[green]Remaining:[/] {estimatedRemaining.Hours:D2}:{estimatedRemaining.Minutes:D2}:{estimatedRemaining.Seconds:D2}")
+                )));
+
+            // Active tables progress
             var activeTablesTable = new Table()
-                .AddColumn("Table")
-                .AddColumn("Progress")
-                .AddColumn("Status")
-                .Border(TableBorder.Rounded);
+                .Border(TableBorder.Rounded)
+                .Title("[blue]Active Tables (Top 10)[/]")
+                .AddColumn(new TableColumn("Table").Width(20))
+                .AddColumn(new TableColumn("Progress").Width(30))
+                .AddColumn(new TableColumn("Count").Width(20));
 
             var activeTableProgress = _tableProgress
                 .OrderByDescending(x => x.Value.Progress)
@@ -74,17 +94,28 @@ namespace DataFiller.Services
 
             foreach (var progress in activeTableProgress)
             {
-                var progressText = new Markup($"[green]{new string('=', (int)(progress.Value.Progress / 5))}[/][grey]{new string('-', 20 - (int)(progress.Value.Progress / 5))}[/] {progress.Value.Progress:F1}%");
+                var progressColor = progress.Value.Progress switch
+                {
+                    >= 90 => "[green]",
+                    >= 60 => "[yellow]",
+                    >= 30 => "[blue]",
+                    _ => "[red]"
+                };
 
+                var progressBar = new string('█', (int)(progress.Value.Progress / 5)) + new string('░', 20 - (int)(progress.Value.Progress / 5));
+                
                 activeTablesTable.AddRow(
-                    new Text(progress.Key),
-                    progressText,
-                    new Text($"{progress.Value.Current:N0}/{progress.Value.Target:N0}"));
+                    new Markup($"[bold]{progress.Key}[/]"),
+                    new Markup($"{progressColor}{progressBar}[/] {progress.Value.Progress:F1}%"),
+                    new Markup($"[green]{progress.Value.Current:N0}[/]/[blue]{progress.Value.Target:N0}[/]"));
             }
 
-            _progressTable.AddRow(new Text("Active Tables"), new Panel(activeTablesTable));
+            _progressTable.AddRow(
+                new Markup("[bold]Active Tables[/]"),
+                new Panel(activeTablesTable));
 
-            // Update the status
+            AnsiConsole.Clear();
+            AnsiConsole.Write(_progressTable);
         }
 
         public async Task FillDataAsync()
