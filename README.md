@@ -44,6 +44,10 @@ English | [简体中文](./README_CN.md)
    - Default: 1000
    - Recommended range: 100-10000
 
+5. **Configure Thread Count**:
+   - Default: 10
+   - Adjust based on your system's CPU cores and available resources
+
 ## 📝 Important Notes
 
 1. Ensure target tables exist and contain sample data

@@ -83,14 +83,14 @@ namespace DataFiller.Services
             // Active tables progress
             var activeTablesTable = new Table()
                 .Border(TableBorder.Rounded)
-                .Title("[blue]Active Tables (Top 10)[/]")
+                .Title("[blue]Active Tables (Top 5)[/]")
                 .AddColumn(new TableColumn("Table").Width(20))
                 .AddColumn(new TableColumn("Progress").Width(30))
                 .AddColumn(new TableColumn("Count").Width(20));
 
             var activeTableProgress = _tableProgress
                 .OrderByDescending(x => x.Value.Progress)
-                .Take(10);
+                .Take(5);
 
             foreach (var progress in activeTableProgress)
             {

@@ -20,6 +20,7 @@ namespace DataFiller.UI
             await ConfigureConnectionAsync();
             await ConfigureTablesAsync();
             await ConfigureBatchSizeAsync();
+            await ConfigureThreadCountAsync();
             await StartFillingAsync();
         }
 
@@ -128,6 +129,26 @@ namespace DataFiller.UI
                         {
                             <= 0 => ValidationResult.Error("[red]Batch size must be greater than 0[/]"),
                             > 10000 => ValidationResult.Error("[red]Batch size must not exceed 10000[/]"),
+                            _ => ValidationResult.Success(),
+                        };
+                    }));
+            });
+        }
+
+        private async Task ConfigureThreadCountAsync()
+        {
+            await Task.Run(() =>
+            {
+                _config.ThreadCount = AnsiConsole.Prompt(
+                    new TextPrompt<int>("Enter thread count (default: 10):")
+                    .PromptStyle("green")
+                    .DefaultValue(10)
+                    .Validate(count =>
+                    {
+                        return count switch
+                        {
+                            <= 0 => ValidationResult.Error("[red]Thread count must be greater than 0[/]"),
+                            > 100 => ValidationResult.Error("[red]Thread count must not exceed 100[/]"),
                             _ => ValidationResult.Success(),
                         };
                     }));
