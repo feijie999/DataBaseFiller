@@ -1,0 +1,100 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/feijie/Projects/sql/DataFiller/DataFiller.csproj": {}
+  },
+  "projects": {
+    "/Users/feijie/Projects/sql/DataFiller/DataFiller.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/feijie/Projects/sql/DataFiller/DataFiller.csproj",
+        "projectName": "DataFiller",
+        "projectPath": "/Users/feijie/Projects/sql/DataFiller/DataFiller.csproj",
+        "packagesPath": "/Users/feijie/.nuget/packages/",
+        "outputPath": "/Users/feijie/Projects/sql/DataFiller/obj/",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "/Users/feijie/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "/usr/local/share/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.trycode.net:888/nuget/abp/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "all"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Npgsql": {
+              "target": "Package",
+              "version": "[7.0.6, )"
+            },
+            "Spectre.Console": {
+              "target": "Package",
+              "version": "[0.49.1, )"
+            },
+            "SqlSugar": {
+              "target": "Package",
+              "version": "[5.1.4.170, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.osx-arm64",
+              "version": "[6.0.36, 6.0.36]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.36, 6.0.36]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.100/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

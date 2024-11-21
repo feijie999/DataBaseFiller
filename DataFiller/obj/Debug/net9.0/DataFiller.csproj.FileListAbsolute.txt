@@ -1,0 +1,5 @@
+/Users/feijie/Projects/sql/DataFiller/obj/Debug/net9.0/DataFiller.csproj.AssemblyReference.cache
+/Users/feijie/Projects/sql/DataFiller/obj/Debug/net9.0/DataFiller.GeneratedMSBuildEditorConfig.editorconfig
+/Users/feijie/Projects/sql/DataFiller/obj/Debug/net9.0/DataFiller.AssemblyInfoInputs.cache
+/Users/feijie/Projects/sql/DataFiller/obj/Debug/net9.0/DataFiller.AssemblyInfo.cs
+/Users/feijie/Projects/sql/DataFiller/obj/Debug/net9.0/DataFiller.csproj.CoreCompileInputs.cache
