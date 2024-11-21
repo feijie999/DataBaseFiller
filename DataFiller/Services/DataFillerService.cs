@@ -117,7 +117,7 @@ namespace DataFiller.Services
 
         public async Task FillDataAsync()
         {
-            using var semaphore = new SemaphoreSlim(10);
+            using var semaphore = new SemaphoreSlim(_config.ThreadCount);
             var tasks = new List<Task>();
             var stopwatch = new Stopwatch();
             stopwatch.Start();
