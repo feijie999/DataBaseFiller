@@ -224,11 +224,12 @@ namespace DataFiller.Services
 
         public List<Dictionary<string, object>> GenerateBatchData(string tableName, List<Dictionary<string, object>> sourceData, int batchSize)
         {
+            var connection = _dbService.CreateDbConnection();
             // 获取表的主键信息
-            var tableInfo = _dbService._db.DbMaintenance.GetTableInfoList().FirstOrDefault(t => t.Name.Equals(tableName, StringComparison.OrdinalIgnoreCase));
+            var tableInfo = connection.DbMaintenance.GetTableInfoList().FirstOrDefault(t => t.Name.Equals(tableName, StringComparison.OrdinalIgnoreCase));
             if (tableInfo != null)
             {
-                var primaryKeyColumns = _dbService._db.DbMaintenance.GetPrimaries(tableInfo.Name);
+                var primaryKeyColumns =connection.DbMaintenance.GetPrimaries(tableInfo.Name);
                 _primaryKeys = new HashSet<string>(primaryKeyColumns.Select(pk => pk), StringComparer.OrdinalIgnoreCase);
             }
 
